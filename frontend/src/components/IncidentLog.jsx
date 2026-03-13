@@ -24,6 +24,8 @@ const IncidentLog = () => {
     }
   }, []);
 
+  const [fullScreenImage, setFullScreenImage] = useState(null);
+
   if (logs.length === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '3rem', color: '#64748b' }}>
@@ -31,8 +33,6 @@ const IncidentLog = () => {
       </div>
     );
   }
-
-  const [fullScreenImage, setFullScreenImage] = useState(null);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
