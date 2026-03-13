@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getIncidents, getSecurityEvents } from '../utils/incidentStore';
+import { getIncidents, getSecurityEvents, deleteIncident, deleteSecurityEvent } from '../utils/incidentStore';
 
 const IncidentLog = () => {
   const [logs, setLogs] = useState([]);
@@ -33,6 +33,26 @@ const IncidentLog = () => {
       </div>
     );
   }
+
+  const handleDelete = (e, log) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this log?")) {
+      if (log.logType === 'incident') {
+        deleteIncident(log.id);
+      } else {
+        deleteSecurityEvent(log.id, log.timestamp);
+      }
+      
+      // Re-fetch everything
+      const rawIncidents = getIncidents();
+      const incidents = (Array.isArray(rawIncidents) ? rawIncidents : []).map(i => ({ ...i, logType: 'incident' }));
+      
+      const rawSecurity = getSecurityEvents();
+      const security = (Array.isArray(rawSecurity) ? rawSecurity : []).map(s => ({ ...s, logType: 'security', id: s.id || Date.now() + Math.random() }));
+      
+      setLogs([...incidents, ...security].sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)));
+    }
+  };
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
@@ -93,17 +113,35 @@ const IncidentLog = () => {
             }}
             onClick={() => toggleExpand(log.id)}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ fontWeight: 'bold' }}>{new Date(log.timestamp).toLocaleString()}</span>
-              {isIncident ? (
-                <span style={{ color: '#ef4444', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                  {(log.triggerType || 'Unknown').replace('_', ' ')}
-                </span>
-              ) : (
-                <span style={{ color: '#eab308', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                  SECURITY EVENT
-                </span>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+              <div>
+                <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.2rem' }}>{new Date(log.timestamp).toLocaleString()}</span>
+                {isIncident ? (
+                  <span style={{ color: '#ef4444', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                    {(log.triggerType || 'Unknown').replace('_', ' ')}
+                  </span>
+                ) : (
+                  <span style={{ color: '#eab308', textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                    SECURITY EVENT
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={(e) => handleDelete(e, log)} 
+                style={{ 
+                  background: 'transparent', 
+                  border: '1px solid currentColor', 
+                  color: '#ef4444', 
+                  cursor: 'pointer', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 'bold', 
+                  padding: '4px 8px',
+                  borderRadius: '4px'
+                }}
+                title="Delete Log"
+              >
+                Delete
+              </button>
             </div>
             
             {isIncident ? (
