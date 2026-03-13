@@ -1,31 +1,52 @@
 import React, { useState } from 'react';
+import { saveContacts, getContacts } from '../utils/contactStore.js';
+import { hashPasscode } from '../utils/securityEncryption.js';
 
 const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [config, setConfig] = useState({
+    security: {
+      passcodeHash: '', // Set by the user to secure the App
+    },
     trigger: {
-      type: 'passcode', // passcode, shake, tap_pattern
+      type: 'passcode',
       value: '1234'
     },
-    contacts: [],
     features: {
       locationSharing: true,
       audioRecording: false
     }
   });
 
+  const [rawPasscode, setRawPasscode] = useState('');
+
   const [contactName, setContactName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contacts, setLocalContacts] = useState(getContacts());
 
   const handleAddContact = () => {
-    if (contactName && contactPhone) {
-      setConfig({
-        ...config,
-        contacts: [...config.contacts, { name: contactName, phone: contactPhone }]
-      });
+    if (contactName && contactPhone && contactEmail) {
+      const newContact = { name: contactName, phone: contactPhone, email: contactEmail };
+      const updatedContacts = [...contacts, newContact];
+      setLocalContacts(updatedContacts);
+      saveContacts(updatedContacts); // Store in local helper
+      
       setContactName('');
       setContactPhone('');
+      setContactEmail('');
     }
+  };
+
+  const handleComplete = () => {
+    // Before completing, hash the secure passcode for storage
+    const finalConfig = {
+      ...config,
+      security: {
+        passcodeHash: hashPasscode(rawPasscode || '0000') // Default to 0000 if empty
+      }
+    };
+    onComplete(finalConfig);
   };
 
   const renderStep1 = () => (
@@ -44,6 +65,20 @@ const Onboarding = ({ onComplete }) => {
           <option value="shake">Shake Device</option>
           <option value="tap_pattern">Hidden Tap Pattern (5 taps)</option>
         </select>
+      </div>
+
+      <div className="input-group" style={{ marginTop: '1rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem'}}>
+        <label className="input-label">App Access Passcode</label>
+        <p style={{fontSize: '0.8rem', color: '#64748b', marginBottom: '0.5rem'}}>
+          Required to access your evidence and settings. If someone enters it wrong, we take their photo.
+        </p>
+        <input 
+          type="number"
+          className="text-input" 
+          placeholder="e.g. 0000"
+          value={rawPasscode}
+          onChange={(e) => setRawPasscode(e.target.value)}
+        />
       </div>
 
       {config.trigger.type === 'passcode' && (
@@ -67,9 +102,11 @@ const Onboarding = ({ onComplete }) => {
       <h2>Trusted Contacts</h2>
       <p>Who should receive your alert and location?</p>
       
-      {config.contacts.map((c, i) => (
+      {contacts.map((c, i) => (
         <div key={i} style={{ padding: '0.5rem', border: '1px solid #e2e8f0', marginBottom: '0.5rem', borderRadius: '4px' }}>
-          <strong>{c.name}</strong> - {c.phone}
+          <strong>{c.name}</strong><br />
+          📞 {c.phone} <br />
+          ✉️ {c.email}
         </div>
       ))}
 
@@ -86,6 +123,13 @@ const Onboarding = ({ onComplete }) => {
           type="tel"
           value={contactPhone}
           onChange={(e) => setContactPhone(e.target.value)}
+        />
+        <input 
+          placeholder="Email Address" 
+          className="text-input"
+          type="email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
         />
         <button className="btn btn-outline" onClick={handleAddContact}>Add Contact</button>
       </div>
@@ -126,7 +170,7 @@ const Onboarding = ({ onComplete }) => {
 
       <div style={{ display: 'flex', gap: '1rem' }}>
         <button className="btn btn-outline" onClick={() => setStep(2)}>Back</button>
-        <button className="btn" onClick={() => onComplete(config)}>Complete Setup</button>
+        <button className="btn" onClick={handleComplete}>Complete Setup</button>
       </div>
     </div>
   );

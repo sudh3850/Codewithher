@@ -57,6 +57,18 @@ export class TriggerDetector {
     
     const { x, y, z } = event.accelerationIncludingGravity;
     
+    // Calculate total acceleration vector
+    const totalAcceleration = Math.sqrt(x * x + y * y + z * z);
+    
+    // Drop / Throw detection (Freefal or high G-force)
+    // Gravity is ~9.8. A drop might see near 0, a throw might see > 25
+    if (totalAcceleration > 25) {
+      this.onTrigger('phone_drop_throw');
+      this.stopShakeDetection();
+      setTimeout(() => this.startShakeDetection(), 5000);
+      return; 
+    }
+
     if (this.lastX !== null) {
       const deltaX = Math.abs(this.lastX - x);
       const deltaY = Math.abs(this.lastY - y);

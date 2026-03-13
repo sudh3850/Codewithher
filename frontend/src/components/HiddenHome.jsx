@@ -54,7 +54,22 @@ const HiddenHome = ({ onTrigger, triggerConfig }) => {
   };
 
   return (
-    <div onClick={handleScreenTap} style={{ height: '100%' }}>
+    <div onClick={handleScreenTap} style={{ height: '100%', position: 'relative' }}>
+      {/* Hidden DEV demo button */}
+      <div 
+        onClick={(e) => { e.stopPropagation(); onTrigger('demo_manual_trigger'); }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '45%',
+          width: '40px',
+          height: '20px',
+          background: 'transparent',
+          zIndex: 100
+        }}
+        title="Hidden Demo Trigger"
+      />
+
       <div style={{ paddingBottom: '1rem', borderBottom: '1px solid #e2e8f0', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>{mode === 'notes' ? 'Quick Notes' : 'Calculator'}</h2>
         <button 

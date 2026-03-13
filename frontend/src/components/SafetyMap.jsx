@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import { getCurrentLocation } from '../utils/locationService';
+import { getSafeZones } from '../utils/safetyZoneService';
+import { getDangerZones } from '../utils/dangerZoneService';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -25,11 +27,9 @@ const SafetyMap = () => {
   const [position, setPosition] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Simulated nearby safety zones (hospitals/police)
-  const safeZones = position ? [
-    { id: 1, type: 'Hospital', lat: position.lat + 0.005, lng: position.lng + 0.005, name: 'City General Hospital' },
-    { id: 2, type: 'Police', lat: position.lat - 0.004, lng: position.lng - 0.003, name: 'Local Police Precinct' },
-  ] : [];
+  // Get simulated nearby zones based on position
+  const safeZones = position ? getSafeZones(position.lat, position.lng) : [];
+  const dangerZones = position ? getDangerZones(position.lat, position.lng) : [];
 
   useEffect(() => {
     getCurrentLocation()
@@ -64,7 +64,7 @@ const SafetyMap = () => {
 
           {safeZones.map(zone => (
             <Marker 
-              key={zone.id} 
+              key={`safe-${zone.id}`} 
               position={[zone.lat, zone.lng]}
               icon={L.icon({
                 iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
@@ -80,10 +80,25 @@ const SafetyMap = () => {
               </Popup>
             </Marker>
           ))}
+
+          {dangerZones.map(zone => (
+            <Circle
+              key={`danger-${zone.id}`}
+              center={[zone.lat, zone.lng]}
+              radius={zone.radius * 1000} // Convert km to meters for leaflet
+              pathOptions={{ fillColor: 'red', color: 'red', fillOpacity: 0.2 }}
+            >
+              <Popup>
+                <strong>⚠️ Danger Zone</strong><br/>
+                {zone.name}
+              </Popup>
+            </Circle>
+          ))}
         </MapContainer>
       </div>
       <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#64748b' }}>
-        <p>🟢 Green markers indicate nearby Police Stations and Hospitals.</p>
+        <p>🟢 Green markers indicate Safe Zones.</p>
+        <p style={{ color: '#ef4444' }}>🔴 Red areas indicate Danger Zones (reported incidents).</p>
       </div>
     </div>
   );
