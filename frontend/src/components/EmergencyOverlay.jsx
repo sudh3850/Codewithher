@@ -7,7 +7,7 @@ const EmergencyOverlay = ({ userConfig, notifiedContacts, onCancel, incidentId }
   const [audioStatus, setAudioStatus] = useState('');
   const [videoStatus, setVideoStatus] = useState('');
 
-  // Keep track if we unmounted to prevent state updates on unmounted component
+  
   const mounted = useRef(true);
 
   useEffect(() => {
