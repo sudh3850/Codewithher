@@ -22,6 +22,7 @@ const App = () => {
   const [dangerWarning, setDangerWarning] = useState(null);
   const [lastKeyPressTime, setLastKeyPressTime] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentIncidentId, setCurrentIncidentId] = useState(null);
 
   useEffect(() => {
     const config = localStorage.getItem('safenest_config');
@@ -93,12 +94,15 @@ const App = () => {
     setEmergencyMode(true);
     
     const timestamp = new Date().toISOString();
+    const currentId = Date.now();
+    setCurrentIncidentId(currentId);
+    
     const incidentRecord = {
-      id: Date.now(),
+      id: currentId,
       timestamp,
       triggerType,
       location: null,
-      recordingIndicator: false,
+      recordingIndicator: true,
     };
 
     let locUrl = 'Unknown';
@@ -108,10 +112,6 @@ const App = () => {
       locUrl = `https://maps.google.com/?q=${loc.lat},${loc.lng}`;
     } catch (e) {
       console.warn('Could not fetch location', e);
-    }
-
-    if (userConfig?.features?.audioRecording) {
-      incidentRecord.recordingIndicator = true;
     }
 
     // Save incident to local storage (Base64 encoded via incidentStore)
@@ -151,8 +151,9 @@ const App = () => {
 
       {emergencyMode && (
         <EmergencyOverlay 
-          userConfig={userConfig}
+          userConfig={{ ...userConfig, features: { ...userConfig.features, audioRecording: true } }}
           notifiedContacts={notifiedContacts}
+          incidentId={currentIncidentId}
           onCancel={() => {
             setEmergencyMode(false);
             setIsAuthenticated(false);

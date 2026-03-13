@@ -29,6 +29,12 @@ export const getIncidents = () => {
   return decodeData(data) || [];
 };
 
+export const deleteIncident = (id) => {
+  const incidents = getIncidents();
+  const filtered = incidents.filter(i => i.id !== id);
+  localStorage.setItem(INCIDENTS_KEY, encodeData(filtered));
+};
+
 /**
  * --- SECURITY LOGS ---
  * Security logs contain events like:
@@ -50,4 +56,14 @@ export const getSecurityEvents = () => {
   const data = localStorage.getItem(SECURITY_LOGS_KEY);
   if (!data) return [];
   return decodeData(data) || [];
+};
+
+export const deleteSecurityEvent = (id, timestamp) => {
+  const events = getSecurityEvents();
+  // We match by id, but if older logs lack an id, we fallback to matching by timestamp
+  const filtered = events.filter(e => {
+    if (e.id && id) return e.id !== id;
+    return e.timestamp !== timestamp;
+  });
+  localStorage.setItem(SECURITY_LOGS_KEY, encodeData(filtered));
 };

@@ -23,8 +23,8 @@ const SecureLogin = ({ expectedHash, onAuthenticated, onCancel }) => {
       setError('Incorrect passcode');
       setPasscode('');
 
-      // Intruder Selfie Trap (e.g. after 2 failed attempts)
-      if (newAttempts >= 2) {
+      // Intruder Selfie Trap
+      if (newAttempts >= 1) {
         try {
           const selfie = await captureSelfie();
           saveSecurityEvent({

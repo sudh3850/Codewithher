@@ -1,13 +1,13 @@
 /* Base styles */
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --danger: #ef4444;
+  --primary: #d9663b;
+  --primary-hover: #b8502a;
+  --bg: #ecdcc9;
+  --surface: #f9f2e9;
+  --text: #453023;
+  --text-muted: #856149;
+  --border: #d4c5b6;
+  --danger: #cf4f36;
 }
 
 * {

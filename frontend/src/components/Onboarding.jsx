@@ -50,22 +50,9 @@ const Onboarding = ({ onComplete }) => {
   };
 
   const renderStep1 = () => (
-    <div className="card">
-      <h2>Secret Trigger Setup</h2>
-      <p>Choose how you will silently trigger an emergency alert.</p>
-      
-      <div className="input-group">
-        <label className="input-label">Trigger Type</label>
-        <select 
-          className="text-input"
-          value={config.trigger.type}
-          onChange={(e) => setConfig({ ...config, trigger: { ...config.trigger, type: e.target.value } })}
-        >
-          <option value="passcode">Secret Passcode (Calculator)</option>
-          <option value="shake">Shake Device</option>
-          <option value="tap_pattern">Hidden Tap Pattern (5 taps)</option>
-        </select>
-      </div>
+    <div className="card" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+      <h2>Secret Setup</h2>
+      <p>Set a discreet passcode to trigger emergency mode from the calculator.</p>
 
       <div className="input-group" style={{ marginTop: '1rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem'}}>
         <label className="input-label">App Access Passcode</label>
@@ -81,24 +68,23 @@ const Onboarding = ({ onComplete }) => {
         />
       </div>
 
-      {config.trigger.type === 'passcode' && (
-        <div className="input-group">
-          <label className="input-label">Enter Secret PIN</label>
-          <input 
-            type="number"
-            className="text-input" 
-            value={config.trigger.value}
-            onChange={(e) => setConfig({ ...config, trigger: { ...config.trigger, value: e.target.value } })}
-          />
-        </div>
-      )}
+      <div className="input-group">
+        <label className="input-label">Enter Secret PIN</label>
+        <input 
+          type="number"
+          className="text-input" 
+          placeholder="e.g. 1234"
+          value={config.trigger.value}
+          onChange={(e) => setConfig({ ...config, trigger: { type: 'passcode', value: e.target.value } })}
+        />
+      </div>
 
       <button className="btn" onClick={() => setStep(2)}>Next Step</button>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className="card">
+    <div className="card" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
       <h2>Trusted Contacts</h2>
       <p>Who should receive your alert and location?</p>
       
@@ -136,54 +122,27 @@ const Onboarding = ({ onComplete }) => {
 
       <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
-        <button className="btn" onClick={() => setStep(3)}>Next Step</button>
-      </div>
-    </div>
-  );
-
-  const renderStep3 = () => (
-    <div className="card">
-      <h2>Privacy & Features</h2>
-      <p>Enable additional safety features.</p>
-      
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input 
-            type="checkbox" 
-            checked={config.features.locationSharing}
-            onChange={(e) => setConfig({ ...config, features: { ...config.features, locationSharing: e.target.checked } })}
-          />
-          Share precise location in alerts
-        </label>
-      </div>
-
-      <div style={{ marginBottom: '2rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input 
-            type="checkbox" 
-            checked={config.features.audioRecording}
-            onChange={(e) => setConfig({ ...config, features: { ...config.features, audioRecording: e.target.checked } })}
-          />
-          Record audio during emergency
-        </label>
-      </div>
-
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <button className="btn btn-outline" onClick={() => setStep(2)}>Back</button>
         <button className="btn" onClick={handleComplete}>Complete Setup</button>
       </div>
     </div>
   );
 
   return (
-    <div className="app-container" style={{ padding: '2rem 1rem', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1>SafeNest Setup</h1>
-        <p>Step {step} of 3</p>
+    <div className="app-container" style={{ 
+      padding: '2rem 1rem', 
+      justifyContent: 'center',
+      backgroundImage: "url('/bg-image.png')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      minHeight: '100vh',
+      width: '100%'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: '1rem', borderRadius: '12px' }}>
+        <h1 style={{ margin: 0, paddingBottom: '0.5rem' }}>SafeNest Setup</h1>
+        <p>Step {step} of 2</p>
       </div>
       {step === 1 && renderStep1()}
       {step === 2 && renderStep2()}
-      {step === 3 && renderStep3()}
     </div>
   );
 };
